@@ -2,5 +2,7 @@
     <string name="app_name">DsToDoTrainingApp</string>
 
     <string name="hello_world">Hello world!</string>
+    <string name="action_add_task">Agregar Tarea</string>
+    <string name="title_activity_new_edit_to_do">NewEditToDo</string>
     <string name="action_settings">Settings</string>
 </resources>
