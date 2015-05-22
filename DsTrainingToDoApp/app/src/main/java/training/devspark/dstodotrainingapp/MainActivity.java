@@ -1,12 +1,14 @@
 package training.devspark.dstodotrainingapp;
 
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -15,7 +17,7 @@ import java.util.List;
 
 import training.devspark.dstodotrainingapp.adapter.ToDoAdapter;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements CompoundButton.OnCheckedChangeListener {
 
 	private static final int NEW_EDIT_TODO = 1;
 	public static final String NEW_TODO_RESULT_FIELD = "result";
@@ -81,7 +83,7 @@ public class MainActivity extends ActionBarActivity {
 				int position = data.getIntExtra(TODO_POSITION, -1);
 				if (result != null && !result.isEmpty()) {
 					if (position >= 0) {
-                        toDoList.set(position, result);
+						toDoList.set(position, result);
 					} else {
 						toDoList.add(result);
 					}
@@ -95,5 +97,26 @@ public class MainActivity extends ActionBarActivity {
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	/**
+	 * Called when the checked state of a compound button has changed.
+	 *
+	 * @param buttonView
+	 *            The compound button view whose state has changed.
+	 * @param isChecked
+	 *            The new checked state of buttonView.
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        int pos = toDoListView.getPositionForView(buttonView);
+        ToDoAdapter.ToDoViewHolder holder = (ToDoAdapter.ToDoViewHolder)toDoListView.getChildAt(pos).getTag();
+		if (isChecked) {
+            holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+		} else {
+			holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+		}
+        String toDoState = isChecked ? " Finished" : " Un-finished";
+        Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
 	}
 }

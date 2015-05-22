@@ -37,7 +37,7 @@ public class NewEditToDo extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				Intent returnIntent = new Intent();
-                returnIntent.putExtra(MainActivity.TODO_POSITION, toDoPosition);
+				returnIntent.putExtra(MainActivity.TODO_POSITION, toDoPosition);
 				returnIntent.putExtra(MainActivity.NEW_TODO_RESULT_FIELD, toDoEditText.getText().toString());
 				setResult(RESULT_OK, returnIntent);
 				finish();
