@@ -201,8 +201,11 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 			realm.beginTransaction();
 
 			//Query the ToDoItem and then remove from Realm
-			realm.where(ToDoItem.class).equalTo("id", item.getId()).findFirst().removeFromRealm();
 
+			ToDoItem asd = realm.where(ToDoItem.class).equalTo("id", item.getId()).findFirst();
+			if (asd != null) {
+				asd.removeFromRealm();
+			}
 			realm.commitTransaction();
 		} finally {
 			if (realm != null) {
