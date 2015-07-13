@@ -1,9 +1,11 @@
 package training.devspark.dstodotrainingapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,6 +53,24 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 				startActivityForResult(intent, NEW_EDIT_TODO);
 			}
 		});
+
+		toDoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+				new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.delete_entry)).setMessage(getString(R.string.are_sure_delete) + toDoList.get(position) + " ?").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						Toast.makeText(MainActivity.this, getString(R.string.removing_to_do) + toDoList.get(position), Toast.LENGTH_SHORT).show();
+						toDoList.remove(position);
+						toDoAdapter.notifyDataSetChanged();
+					}
+				}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						Toast.makeText(MainActivity.this, getString(R.string.user_cancel), Toast.LENGTH_SHORT).show();
+					}
+				}).setIcon(android.R.drawable.ic_dialog_alert).show();
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -89,11 +109,11 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 					}
 					toDoAdapter.notifyDataSetChanged();
 				} else {
-					Toast.makeText(this, "Empty Input", Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, getString(R.string.empty_input), Toast.LENGTH_SHORT).show();
 				}
 			}
 			if (resultCode == RESULT_CANCELED) {
-				Toast.makeText(this, "User Cancelled", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, getString(R.string.user_cancel), Toast.LENGTH_SHORT).show();
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
@@ -109,14 +129,14 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 	 */
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        int pos = toDoListView.getPositionForView(buttonView);
-        ToDoAdapter.ToDoViewHolder holder = (ToDoAdapter.ToDoViewHolder)toDoListView.getChildAt(pos).getTag();
+		int pos = toDoListView.getPositionForView(buttonView);
+		ToDoAdapter.ToDoViewHolder holder = (ToDoAdapter.ToDoViewHolder)toDoListView.getChildAt(pos).getTag();
 		if (isChecked) {
-            holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+			holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 		} else {
 			holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
 		}
-        String toDoState = isChecked ? " Finished" : " Un-finished";
-        Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
+		String toDoState = isChecked ? " Finished" : " Un-finished";
+		Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
 	}
 }

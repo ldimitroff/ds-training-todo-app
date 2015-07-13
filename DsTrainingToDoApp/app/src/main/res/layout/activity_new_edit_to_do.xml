@@ -24,7 +24,8 @@
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
         android:layout_below="@+id/textView"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/linearLayout">
 
         <EditText
             android:id="@+id/toDoEditText"
@@ -45,5 +46,6 @@
             android:layout_below="@+id/toDoEditText"
             android:text="Agregar Tarea"/>
     </LinearLayout>
+
 
 </RelativeLayout>
