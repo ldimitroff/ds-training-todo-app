@@ -2,7 +2,6 @@ package training.devspark.dstodotrainingapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
@@ -41,6 +40,9 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		toDoAdapter = new ToDoAdapter(this, toDoList);
 
 		toDoListView.setAdapter(toDoAdapter);
+
+		// ASYNC CALL REQUIRED
+		loadToDoList();
 	}
 
 	private void bindViews() {
@@ -62,6 +64,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 				new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.delete_entry)).setMessage(getString(R.string.are_sure_delete) + toDoList.get(position) + " ?").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
 						Toast.makeText(MainActivity.this, getString(R.string.removing_to_do) + toDoList.get(position), Toast.LENGTH_SHORT).show();
+						deleteFromRealm(toDoList.get(position));
 						toDoList.remove(position);
 						toDoAdapter.notifyDataSetChanged();
 					}
@@ -73,15 +76,6 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 				return true;
 			}
 		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		// ASYNC CALL REQUIRED
-		loadToDoList(toDoList);
-
 	}
 
 	@Override
@@ -110,6 +104,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		if (id == R.id.action_add_task) {
 			Intent intent = new Intent(this, NewEditToDo.class);
 			intent.putExtra(TODO_ITEM, new ToDoItem());
+			startActivityForResult(intent, NEW_EDIT_TODO);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -119,7 +114,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == NEW_EDIT_TODO) {
 			if (resultCode == RESULT_OK) {
-				ToDoItem result = (ToDoItem) data.getSerializableExtra(NEW_TODO_RESULT_FIELD);
+				ToDoItem result = (ToDoItem)data.getSerializableExtra(NEW_TODO_RESULT_FIELD);
 				int position = data.getIntExtra(TODO_POSITION, -1);
 				if (result != null && !result.getName().isEmpty()) {
 					if (position >= 0) {
@@ -150,26 +145,30 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		int pos = toDoListView.getPositionForView(buttonView);
-		ToDoAdapter.ToDoViewHolder holder = (ToDoAdapter.ToDoViewHolder)toDoListView.getChildAt(pos).getTag();
-		if (isChecked) {
-			holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-		} else {
-			holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-		}
+		toDoList.get(pos).setIsTaskFinished(isChecked);
+		toDoAdapter.notifyDataSetChanged();
+
 		String toDoState = isChecked ? " Finished" : " Un-finished";
 		Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
 	}
 
-	private void loadToDoList(List<ToDoItem> list) {
-		if (list == null) return;
-		list.clear();
+	private void loadToDoList() {
+		if (toDoList == null) return;
+		toDoList.clear();
 		Realm realm = null;
 		try {
 			realm = Realm.getInstance(this);
 
 			for (ToDoItem item : realm.allObjects(ToDoItem.class)) {
-				list.add(item);
+				//Copy the ToDoItem in order to insert to the local list
+				ToDoItem itemToInsert = new ToDoItem();
+				itemToInsert.setId(item.getId());
+				itemToInsert.setName(item.getName());
+				itemToInsert.setIsTaskFinished(item.isTaskFinished());
+				toDoList.add(itemToInsert);
 			}
+
+			toDoAdapter.notifyDataSetChanged();
 		} finally {
 			if (realm != null) {
 				realm.close();
@@ -186,6 +185,24 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 			// Copy the object to Realm. Any further changes must happen on realmUser
 			realm.beginTransaction();
 			realm.copyToRealmOrUpdate(list);
+			realm.commitTransaction();
+		} finally {
+			if (realm != null) {
+				realm.close();
+			}
+		}
+	}
+
+	private void deleteFromRealm(ToDoItem item) {
+		if (item == null) return;
+		Realm realm = null;
+		try {
+			realm = Realm.getInstance(this);
+			realm.beginTransaction();
+
+			//Query the ToDoItem and then remove from Realm
+			realm.where(ToDoItem.class).equalTo("id", item.getId()).findFirst().removeFromRealm();
+
 			realm.commitTransaction();
 		} finally {
 			if (realm != null) {

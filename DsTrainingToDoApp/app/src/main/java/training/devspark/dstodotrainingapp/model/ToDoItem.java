@@ -10,24 +10,34 @@ import io.realm.annotations.PrimaryKey;
  */
 
 public class ToDoItem extends RealmObject implements Serializable {
-    @PrimaryKey
-    private long id = System.nanoTime();
-    private String name = "";
-    private Boolean finished;
 
-    public String getName() {
-        return name;
-    }
+	@PrimaryKey
+	private long id = System.nanoTime();
+	private String name = "";
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	private boolean isTaskFinished;
 
-    public Boolean getFinished() {
-        return finished;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isTaskFinished() {
+		return isTaskFinished;
+	}
+
+	public void setIsTaskFinished(boolean isTaskFinished) {
+		this.isTaskFinished = isTaskFinished;
+	}
 }

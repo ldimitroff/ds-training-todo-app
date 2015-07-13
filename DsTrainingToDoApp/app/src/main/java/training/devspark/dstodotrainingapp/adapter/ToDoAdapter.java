@@ -2,6 +2,7 @@ package training.devspark.dstodotrainingapp.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,7 +107,12 @@ public class ToDoAdapter extends BaseAdapter {
 		ToDoItem item = getItem(position);
 		if (item != null) {
 			holder.toDoText.setText(item.getName());
-			holder.toDoCheckBox.setChecked(item.getFinished());
+			holder.toDoCheckBox.setChecked(item.isTaskFinished());
+			if (item.isTaskFinished()) {
+				holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+			} else {
+				holder.toDoText.setPaintFlags(holder.toDoText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+			}
 		}
 		holder.toDoCheckBox.setOnCheckedChangeListener((CompoundButton.OnCheckedChangeListener)context);
 
