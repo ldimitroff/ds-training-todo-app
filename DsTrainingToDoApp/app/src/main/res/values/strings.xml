@@ -10,4 +10,6 @@
     <string name="removing_to_do">"Removing: "</string>
     <string name="user_cancel">Usuario ha cancelado</string>
     <string name="empty_input">Empty Input</string>
+    <string name="save_to_do">Guardar Tarea</string>
+    <string name="modify_to_do">Modificar Tarea</string>
 </resources>

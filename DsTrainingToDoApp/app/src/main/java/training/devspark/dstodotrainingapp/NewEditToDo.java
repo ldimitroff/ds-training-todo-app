@@ -43,5 +43,10 @@ public class NewEditToDo extends ActionBarActivity {
 				finish();
 			}
 		});
+
+		if (toDoPosition >= 0) {
+			setTitle(getString(R.string.modify_to_do));
+			addToDoButton.setText(getString(R.string.save_to_do));
+		}
 	}
 }
