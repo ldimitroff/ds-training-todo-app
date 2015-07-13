@@ -61,9 +61,9 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		toDoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-				new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.delete_entry)).setMessage(getString(R.string.are_sure_delete) + toDoList.get(position) + " ?").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(MainActivity.this).setTitle(getString(R.string.delete_entry)).setMessage(getString(R.string.are_sure_delete) + toDoList.get(position).getName() + " ?").setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {
-						Toast.makeText(MainActivity.this, getString(R.string.removing_to_do) + toDoList.get(position), Toast.LENGTH_SHORT).show();
+						Toast.makeText(MainActivity.this, getString(R.string.removing_to_do) + toDoList.get(position).getName(), Toast.LENGTH_SHORT).show();
 						deleteFromRealm(toDoList.get(position));
 						toDoList.remove(position);
 						toDoAdapter.notifyDataSetChanged();
@@ -149,7 +149,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		toDoAdapter.notifyDataSetChanged();
 
 		String toDoState = isChecked ? " Finished" : " Un-finished";
-		Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, toDoList.get(pos).getName() + toDoState, Toast.LENGTH_SHORT).show();
 	}
 
 	private void loadToDoList() {
