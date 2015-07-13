@@ -7,11 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import training.devspark.dstodotrainingapp.model.ToDoItem;
+
 public class NewEditToDo extends ActionBarActivity {
 
 	private Button addToDoButton;
 	private EditText toDoEditText;
-	private String toDoText;
+	private ToDoItem toDoItem;
 	private int toDoPosition;
 
 	@Override
@@ -20,7 +22,7 @@ public class NewEditToDo extends ActionBarActivity {
 		setContentView(R.layout.activity_new_edit_to_do);
 
 		Intent i = getIntent();
-		toDoText = i.getStringExtra(MainActivity.TODO_TEXT);
+		toDoItem = (ToDoItem) i.getSerializableExtra(MainActivity.TODO_ITEM);
 		toDoPosition = i.getIntExtra(MainActivity.TODO_POSITION, -1);
 		bindViews();
 	}
@@ -28,8 +30,8 @@ public class NewEditToDo extends ActionBarActivity {
 	private void bindViews() {
 		toDoEditText = (EditText)findViewById(R.id.toDoEditText);
 
-		if (toDoText != null && !toDoText.isEmpty()) {
-			toDoEditText.setText(toDoText);
+		if (toDoItem != null && !toDoItem.getName().isEmpty()) {
+			toDoEditText.setText(toDoItem.getName());
 		}
 
 		addToDoButton = (Button)findViewById(R.id.addToDoButton);
@@ -38,7 +40,8 @@ public class NewEditToDo extends ActionBarActivity {
 			public void onClick(View v) {
 				Intent returnIntent = new Intent();
 				returnIntent.putExtra(MainActivity.TODO_POSITION, toDoPosition);
-				returnIntent.putExtra(MainActivity.NEW_TODO_RESULT_FIELD, toDoEditText.getText().toString());
+				toDoItem.setName(toDoEditText.getText().toString());
+				returnIntent.putExtra(MainActivity.NEW_TODO_RESULT_FIELD, toDoItem);
 				setResult(RESULT_OK, returnIntent);
 				finish();
 			}

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import training.devspark.dstodotrainingapp.R;
+import training.devspark.dstodotrainingapp.model.ToDoItem;
 
 /**
  * Created by ldimitroff on 21/05/15.
@@ -26,9 +27,9 @@ public class ToDoAdapter extends BaseAdapter {
 		CheckBox toDoCheckBox;
 	}
 
-	private final List<String> toDoList;
+	private final List<ToDoItem> toDoList;
 
-	public ToDoAdapter(Context context, List<String> toDoList) {
+	public ToDoAdapter(Context context, List<ToDoItem> toDoList) {
 		this.toDoList = toDoList;
 		this.context = context;
 	}
@@ -52,7 +53,7 @@ public class ToDoAdapter extends BaseAdapter {
 	 * @return The data at the specified position.
 	 */
 	@Override
-	public String getItem(int position) {
+	public ToDoItem getItem(int position) {
 		return toDoList.get(position);
 	}
 
@@ -102,8 +103,10 @@ public class ToDoAdapter extends BaseAdapter {
 			holder = (ToDoViewHolder)convertView.getTag();
 		}
 
-		if (getItem(position) != null) {
-			holder.toDoText.setText(getItem(position));
+		ToDoItem item = getItem(position);
+		if (item != null) {
+			holder.toDoText.setText(item.getName());
+			holder.toDoCheckBox.setChecked(item.getFinished());
 		}
 		holder.toDoCheckBox.setOnCheckedChangeListener((CompoundButton.OnCheckedChangeListener)context);
 

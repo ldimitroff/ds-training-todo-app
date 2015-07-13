@@ -17,16 +17,18 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
 import training.devspark.dstodotrainingapp.adapter.ToDoAdapter;
+import training.devspark.dstodotrainingapp.model.ToDoItem;
 
 public class MainActivity extends ActionBarActivity implements CompoundButton.OnCheckedChangeListener {
 
 	private static final int NEW_EDIT_TODO = 1;
 	public static final String NEW_TODO_RESULT_FIELD = "result";
-	public static final String TODO_TEXT = "todotext";
+	public static final String TODO_ITEM = "todoitem";
 	public static final String TODO_POSITION = "todoposition";
 
-	private List<String> toDoList;
+	private List<ToDoItem> toDoList;
 	private ToDoAdapter toDoAdapter;
 	private ListView toDoListView;
 
@@ -35,7 +37,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		bindViews();
-		toDoList = new ArrayList<String>();
+		toDoList = new ArrayList<>();
 		toDoAdapter = new ToDoAdapter(this, toDoList);
 
 		toDoListView.setAdapter(toDoAdapter);
@@ -48,7 +50,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent intent = new Intent(MainActivity.this, NewEditToDo.class);
-				intent.putExtra(TODO_TEXT, toDoList.get(position));
+				intent.putExtra(TODO_ITEM, toDoList.get(position));
 				intent.putExtra(TODO_POSITION, position);
 				startActivityForResult(intent, NEW_EDIT_TODO);
 			}
@@ -74,6 +76,24 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// ASYNC CALL REQUIRED
+		loadToDoList(toDoList);
+
+	}
+
+	@Override
+	protected void onPause() {
+
+		// ASYNC CALL REQUIRED
+		saveTodoList(toDoList);
+
+		super.onPause();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -89,7 +109,7 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 
 		if (id == R.id.action_add_task) {
 			Intent intent = new Intent(this, NewEditToDo.class);
-			startActivityForResult(intent, NEW_EDIT_TODO);
+			intent.putExtra(TODO_ITEM, new ToDoItem());
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -99,9 +119,9 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == NEW_EDIT_TODO) {
 			if (resultCode == RESULT_OK) {
-				String result = data.getStringExtra(NEW_TODO_RESULT_FIELD);
+				ToDoItem result = (ToDoItem) data.getSerializableExtra(NEW_TODO_RESULT_FIELD);
 				int position = data.getIntExtra(TODO_POSITION, -1);
-				if (result != null && !result.isEmpty()) {
+				if (result != null && !result.getName().isEmpty()) {
 					if (position >= 0) {
 						toDoList.set(position, result);
 					} else {
@@ -139,4 +159,39 @@ public class MainActivity extends ActionBarActivity implements CompoundButton.On
 		String toDoState = isChecked ? " Finished" : " Un-finished";
 		Toast.makeText(this, toDoList.get(pos) + toDoState, Toast.LENGTH_SHORT).show();
 	}
+
+	private void loadToDoList(List<ToDoItem> list) {
+		if (list == null) return;
+		list.clear();
+		Realm realm = null;
+		try {
+			realm = Realm.getInstance(this);
+
+			for (ToDoItem item : realm.allObjects(ToDoItem.class)) {
+				list.add(item);
+			}
+		} finally {
+			if (realm != null) {
+				realm.close();
+			}
+		}
+	}
+
+	private void saveTodoList(List<ToDoItem> list) {
+		if (list == null) return;
+		Realm realm = null;
+		try {
+			realm = Realm.getInstance(this);
+
+			// Copy the object to Realm. Any further changes must happen on realmUser
+			realm.beginTransaction();
+			realm.copyToRealmOrUpdate(list);
+			realm.commitTransaction();
+		} finally {
+			if (realm != null) {
+				realm.close();
+			}
+		}
+	}
+
 }
